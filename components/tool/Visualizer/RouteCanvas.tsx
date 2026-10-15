@@ -21,6 +21,10 @@ type Props = {
   /** Durasi transisi antar frame (detik) — mengikuti kecepatan playback. */
   duration: number;
   showCurrent?: boolean;
+  /** Heuristik konstruksi: kota yang baru ditambahkan (disorot). */
+  focusNode?: number;
+  /** Heuristik perbaikan: sisi kota a-b yang berubah (disorot). */
+  focusEdges?: [number, number][];
 };
 
 export function RouteCanvas({
@@ -29,6 +33,8 @@ export function RouteCanvas({
   bestTour,
   duration,
   showCurrent = true,
+  focusNode,
+  focusEdges,
 }: Props) {
   const reduceMotion = useReducedMotion();
 
@@ -102,6 +108,23 @@ export function RouteCanvas({
         />
       ))}
 
+      {/* Sorotan sisi yang berubah (tahap perbaikan 2-opt/3-opt) */}
+      {focusEdges?.map(([a, b], i) =>
+        pos[a] && pos[b] ? (
+          <line
+            key={`focus-edge-${i}`}
+            x1={pos[a].x}
+            y1={pos[a].y}
+            x2={pos[b].x}
+            y2={pos[b].y}
+            stroke="var(--brand-amber)"
+            strokeWidth={5}
+            strokeOpacity={0.9}
+            strokeLinecap="round"
+          />
+        ) : null
+      )}
+
       {/* Node kota */}
       {pos.map((p, i) => (
         <g key={`node-${i}`}>
@@ -120,8 +143,23 @@ export function RouteCanvas({
         </g>
       ))}
 
-      {/* Penanda titik awal rute (Amber) */}
-      {startNode && (
+      {/* Sorotan kota yang baru ditambahkan (tahap konstruksi) */}
+      {focusNode !== undefined && pos[focusNode] && (
+        <motion.circle
+          key={`focus-node-${focusNode}`}
+          cx={pos[focusNode].x}
+          cy={pos[focusNode].y}
+          fill="var(--brand-amber)"
+          stroke="var(--card)"
+          strokeWidth={2}
+          initial={reduceMotion ? false : { r: 13, opacity: 0.6 }}
+          animate={{ r: 8, opacity: 1 }}
+          transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
+        />
+      )}
+
+      {/* Penanda titik awal rute (Amber) — hanya saat ada rute "current" */}
+      {showCurrent && startNode && (
         <motion.circle
           initial={false}
           animate={{ cx: startNode.x, cy: startNode.y }}

@@ -107,8 +107,12 @@ export function Visualizer() {
     );
   }
 
-  const algoName =
-    resultAlgorithm === "sa" ? "Simulated Annealing" : "Tabu Search";
+  const isHeuristic = resultAlgorithm === "heuristic";
+  const algoName = isHeuristic
+    ? (result.label ?? "Heuristik klasik")
+    : resultAlgorithm === "sa"
+      ? "Simulated Annealing"
+      : "Tabu Search";
   const duration = Math.min(0.4, (1 / speed) * 0.9);
 
   return (
@@ -116,11 +120,20 @@ export function Visualizer() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">3. Visualisasi &amp; Animasi</h2>
-          <p className="text-sm text-muted-foreground">
-            Garis <span className="font-medium text-secondary">teal tebal</span> = rute
-            terbaik sejauh ini; <span className="font-medium text-[var(--brand-graphite)]">abu
-            tipis</span> = rute yang sedang dievaluasi.
-          </p>
+          {isHeuristic ? (
+            <p className="text-sm text-muted-foreground">
+              Garis <span className="font-medium text-secondary">teal</span> = rute yang
+              sedang dibangun/dirapikan; sorotan{" "}
+              <span className="font-medium text-accent">amber</span> = kota atau sisi yang
+              sedang diproses.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Garis <span className="font-medium text-secondary">teal tebal</span> = rute
+              terbaik sejauh ini; <span className="font-medium text-[var(--brand-graphite)]">abu
+              tipis</span> = rute yang sedang dievaluasi.
+            </p>
+          )}
         </div>
         <Badge className="bg-primary text-primary-foreground">{algoName}</Badge>
       </div>
@@ -139,7 +152,9 @@ export function Visualizer() {
         <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
           <Repeat2 className="size-5 shrink-0 text-muted-foreground" />
           <div>
-            <p className="text-xs text-muted-foreground">Iterasi</p>
+            <p className="text-xs text-muted-foreground">
+              {isHeuristic ? "Langkah" : "Iterasi"}
+            </p>
             <p className="text-lg font-bold tabular-nums">{result.iterations}</p>
           </div>
         </div>
@@ -171,7 +186,9 @@ export function Visualizer() {
               currentTour={frame.currentTour}
               bestTour={frame.bestTour}
               duration={duration}
-              showCurrent={canAnimate}
+              showCurrent={canAnimate && !isHeuristic}
+              focusNode={frame.focusNode}
+              focusEdges={frame.focusEdges}
             />
             <BestRecordBadge triggerKey={burst} disabled={!!reduceMotion} />
           </div>
@@ -193,9 +210,16 @@ export function Visualizer() {
         </Card>
       </div>
 
-      {/* Grafik konvergensi */}
+      {/* Grafik konvergensi / panjang rute per langkah */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Grafik konvergensi</h3>
+        <h3 className="text-sm font-semibold">
+          {isHeuristic ? "Panjang rute per langkah" : "Grafik konvergensi"}
+        </h3>
+        {isHeuristic && (
+          <p className="text-xs text-muted-foreground">
+            Naik saat konstruksi membangun rute, lalu turun saat 2-opt/3-opt merapikannya.
+          </p>
+        )}
         <ConvergenceChart result={result} frameIndex={shownIndex} />
       </div>
     </section>

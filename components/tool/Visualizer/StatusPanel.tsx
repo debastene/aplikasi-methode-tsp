@@ -3,10 +3,21 @@
 // Panel edukasi "Apa yang sedang terjadi" — isinya berbeda per algoritma.
 // SA: termometer suhu + kartu probabilitas Metropolis p = e^(-Δ/T).
 // TS: daftar tabu list + sorotan momen aspiration.
+// Heuristik klasik: tahap (konstruksi / 2-opt / 3-opt) + keterangan langkah.
 
 import { motion, useReducedMotion } from "motion/react";
-import { Flame, Ban, Sparkles, TrendingDown, ThumbsDown, Zap } from "lucide-react";
+import {
+  Flame,
+  Ban,
+  Sparkles,
+  TrendingDown,
+  ThumbsDown,
+  Zap,
+  Hammer,
+  Scissors,
+} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import type { Frame } from "@/lib/tsp/types";
 import type { AlgorithmKey } from "@/lib/store/useRunStore";
 import { cn } from "@/lib/utils";
@@ -296,6 +307,80 @@ function TSPanel({ frame }: { frame: Frame }) {
   );
 }
 
+/** Panel edukasi untuk heuristik klasik (konstruksi + perbaikan). */
+function HeuristicPanel({ frame }: { frame: Frame }) {
+  const reduceMotion = useReducedMotion();
+  const phase = frame.phase ?? "construction";
+  const isBuild = phase === "construction";
+
+  const meta = isBuild
+    ? {
+        label: "Konstruksi",
+        Icon: Hammer,
+        tone: "text-primary",
+        ring: "border-primary/40 bg-primary/10",
+        title: "Membangun rute",
+        tip: (
+          <ConceptTip term="konstruksi">
+            Heuristik konstruksi membangun rute dari nol: mulai dari beberapa kota,
+            lalu menambah satu kota tiap langkah dengan aturan tertentu (terdekat,
+            termurah, terjauh, dst.) sampai semua kota masuk.
+          </ConceptTip>
+        ),
+      }
+    : {
+        label: phase === "2opt" ? "Perbaikan 2-opt" : "Perbaikan 3-opt",
+        Icon: Scissors,
+        tone: "text-accent",
+        ring: "border-accent/40 bg-accent/10",
+        title: phase === "2opt" ? "Mengurai dua sisi" : "Menyambung ulang tiga potongan",
+        tip: (
+          <ConceptTip term="perbaikan lokal">
+            Setelah rute awal jadi, local search merapikannya: memotong beberapa sisi
+            lalu menyambung ulang bila itu memperpendek rute. 2-opt memotong dua sisi,
+            3-opt memotong tiga.
+          </ConceptTip>
+        ),
+      };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-border bg-muted/30 p-3">
+        <p className="text-xs text-muted-foreground">Panjang rute saat ini</p>
+        <motion.p
+          key={frame.currentCost}
+          initial={reduceMotion ? false : { scale: 1.12 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 18 }}
+          className="text-xl font-bold text-secondary tabular-nums"
+        >
+          {frame.currentCost.toFixed(2)}
+        </motion.p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Badge className="gap-1.5 bg-primary text-primary-foreground">
+          <meta.Icon className="size-3.5" />
+          {meta.label}
+        </Badge>
+        <span className="text-xs text-muted-foreground">Tahap {isBuild ? "1" : "2"} dari 2</span>
+      </div>
+
+      {/* Tinggi dikunci supaya panel tidak melompat saat keterangan berganti. */}
+      <div className={cn("flex min-h-28 flex-col justify-center rounded-2xl border p-3", meta.ring)}>
+        <p className={cn("flex items-center gap-1.5 text-sm font-semibold", meta.tone)}>
+          <meta.Icon className="size-4" />
+          {meta.title}
+        </p>
+        <p className="mt-1 text-sm">{frame.note ?? "—"}</p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Ini bagian dari tahap {meta.tip}.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function StatusPanel({
   algorithm,
   frame,
@@ -305,6 +390,8 @@ export function StatusPanel({
   frame: Frame;
   initialTemperature: number;
 }) {
+  if (algorithm === "heuristic") return <HeuristicPanel frame={frame} />;
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">

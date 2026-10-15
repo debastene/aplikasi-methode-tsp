@@ -39,6 +39,16 @@ export interface Frame {
   isTabuMove?: boolean; // langkah terpilih berstatus tabu?
   aspiration?: boolean; // tabu tapi lolos aspiration criterion?
   tabuList?: { move: [number, number]; expiresAt: number }[]; // snapshot tabu list
+
+  // --- Khusus Heuristik klasik (konstruksi + perbaikan) ---
+  /** Tahap pipeline yang menghasilkan frame ini. */
+  phase?: "construction" | "2opt" | "3opt";
+  /** Kota yang baru disambung/diselipkan pada tahap konstruksi (untuk disorot). */
+  focusNode?: number;
+  /** Sisi (edge) kota a-b yang berubah pada tahap perbaikan (untuk disorot). */
+  focusEdges?: [number, number][];
+  /** Keterangan singkat "apa yang terjadi" di langkah ini (mode edukasi). */
+  note?: string;
 }
 
 /** Hasil akhir eksekusi sebuah algoritma. */
@@ -50,4 +60,6 @@ export interface AlgoResult {
   frames: Frame[]; // frame yang sudah disampling untuk animasi
   /** Riwayat bestCost per iterasi (full-length, ringan) untuk grafik konvergensi. */
   costHistory: number[];
+  /** Nama pipeline, mis. "CI + 2-opt + 3-opt" (dipakai heuristik klasik). Opsional. */
+  label?: string;
 }
