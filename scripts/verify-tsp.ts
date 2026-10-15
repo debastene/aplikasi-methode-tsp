@@ -9,6 +9,9 @@ import { tourCost, distance } from "../lib/tsp/distance";
 import { makeRng } from "../lib/tsp/rng";
 import { runSimulatedAnnealing } from "../lib/tsp/simulatedAnnealing";
 import { runTabuSearch } from "../lib/tsp/tabuSearch";
+import { runConstruction, type ConstructionKey } from "../lib/tsp/construction";
+import { runHeuristic } from "../lib/tsp/heuristic";
+import { SAMPLE_25 } from "../lib/samples";
 
 let passed = 0;
 let failed = 0;
@@ -143,6 +146,48 @@ const tsA = runTabuSearch(points, { seed: 999, maxIter: 500 });
 const tsB = runTabuSearch(points, { seed: 999, maxIter: 500 });
 check("TS seed sama -> bestCost identik", tsA.bestCost === tsB.bestCost, `${tsA.bestCost} vs ${tsB.bestCost}`);
 check("TS seed sama -> bestTour identik", JSON.stringify(tsA.bestTour) === JSON.stringify(tsB.bestTour));
+
+// ---------------------------------------------------------------------------
+// Heuristik klasik (konstruksi + perbaikan) — dataset 25 kota Case I.
+// ---------------------------------------------------------------------------
+const hpts: Point[] = SAMPLE_25.map((c) => ({ x: c.x, y: c.y }));
+const isPermutation = (t: Tour, n: number) =>
+  t.length === n && new Set(t).size === n && t.every((v) => v >= 0 && v < n);
+
+console.log("\n[H] Heuristik konstruksi — rute valid & jejak langkah");
+for (const k of ["NN", "NI", "CI", "FI", "AI"] as ConstructionKey[]) {
+  const r = runConstruction(k, hpts, { startNode: 0, rng: makeRng(42) });
+  check(`${k}: rute permutasi lengkap`, isPermutation(r.tour, hpts.length));
+  check(`${k}: jumlah langkah == jumlah kota`, r.steps.length === hpts.length);
+  check(`${k}: langkah terakhir == rute akhir`, isPermutation(r.steps[r.steps.length - 1].tour, hpts.length));
+}
+
+console.log("\n[H] Pipeline gabungan — frame beranimasi & rute akhir");
+const hp = runHeuristic(hpts, { construction: "CI", improvements: ["2opt", "3opt"], seed: 42 });
+console.log(`    ${hp.label} -> ${hp.bestCost.toFixed(2)} | frames = ${hp.frames.length}`);
+check("pipeline: rute akhir permutasi lengkap", isPermutation(hp.bestTour, hpts.length));
+check("pipeline: frame <= 300", hp.frames.length <= 300, `dapat ${hp.frames.length}`);
+check("pipeline: ada fase konstruksi", hp.frames.some((f) => f.phase === "construction"));
+check("pipeline: ada fase perbaikan (2opt/3opt)", hp.frames.some((f) => f.phase === "2opt" || f.phase === "3opt"));
+check(
+  "pipeline: nomor iterasi frame menaik & unik",
+  hp.frames.every((f, k) => k === 0 || f.iteration > hp.frames[k - 1].iteration)
+);
+check(
+  "pipeline: frame terakhir == rute akhir (biaya sama)",
+  Math.abs(hp.frames[hp.frames.length - 1].bestCost - hp.bestCost) < 1e-9
+);
+const ciOnlyCost = tourCost(runConstruction("CI", hpts, {}).tour, hpts);
+check(
+  "pipeline: perbaikan tidak memperburuk konstruksi",
+  hp.bestCost <= ciOnlyCost + 1e-6,
+  `pipeline ${hp.bestCost.toFixed(2)} vs CI ${ciOnlyCost.toFixed(2)}`
+);
+
+console.log("\n[H] Reproducibility Arbitrary Insertion (seed sama)");
+const ha = runHeuristic(hpts, { construction: "AI", improvements: ["2opt"], seed: 7 });
+const hb = runHeuristic(hpts, { construction: "AI", improvements: ["2opt"], seed: 7 });
+check("AI seed sama -> rute akhir identik", JSON.stringify(ha.bestTour) === JSON.stringify(hb.bestTour));
 
 console.log(`\n== Ringkasan: ${passed} lulus, ${failed} gagal ==`);
 process.exit(failed > 0 ? 1 : 0);
