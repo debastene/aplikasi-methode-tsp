@@ -300,9 +300,9 @@ void main() {
 const UNIFORMS = {
   colors: [
     [1.0, 1.0, 1.0], // #ffffff
-    [0.91, 0.914, 0.957], // #e8e9f4
-    [0.227, 0.227, 0.71], // #3a3ab5
-    [0.043, 0.431, 0.388], // #0b6e63
+    [0.914, 0.922, 0.969], // #e9ebf7 — kabut sejuk kebiruan (lebih selaras indigo)
+    [0.251, 0.251, 0.8], // #4040cc — filamen indigo (disegarkan)
+    [0.043, 0.431, 0.388], // #0b6e63 — hanya di inti paling terang
     [0.043, 0.431, 0.388],
     [0.043, 0.431, 0.388],
     [0.043, 0.431, 0.388],
@@ -310,17 +310,17 @@ const UNIFORMS = {
   ] as [number, number, number][],
   colorCount: 4,
   scale: 1.26,
-  intensity: 0.3,
-  paramA: 0.55,
+  intensity: 0.33,
+  paramA: 0.56,
   warp: 0.0,
   detail: 1.824,
-  contrast: 0.97,
+  contrast: 0.98,
   brightness: 0.02,
-  saturation: 1.1,
+  saturation: 1.12,
   hue: 0.0,
-  vignette: 0.14,
+  vignette: 0.1,
   blur: 0.0,
-  grain: 0.018,
+  grain: 0.016,
   seed: 1372.0,
   rotate: 0.0,
   offsetX: -0.09,
