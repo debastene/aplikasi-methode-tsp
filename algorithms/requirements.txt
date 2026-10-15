@@ -14,3 +14,10 @@ openpyxl==3.1.5      # dibutuhkan pandas.read_excel untuk berkas .xlsx
 
 # simulated-annealing.py hanya memakai pustaka bawaan (math, random, time),
 # jadi tidak menambah dependensi apa pun.
+
+# NN / NI / CI / FI / AI / 2-opt / 3-opt / gabungan.py — heuristik konstruksi
+# & perbaikan. Ketujuh berkas mengimpor numpy & matplotlib di barisan atasnya,
+# jadi keduanya wajib terpasang agar berkas bisa di-import sama sekali
+# (matplotlib belum terpakai di fungsinya, tapi importnya ada di tingkat modul).
+numpy>=2.2
+matplotlib>=3.10
