@@ -176,10 +176,10 @@ export function SolverPanel() {
                 type="button"
                 onClick={() => setAlgorithm(a.key)}
                 className={cn(
-                  "rounded-3xl border-2 bg-card p-5 text-left transition-all",
+                  "rounded-3xl border-2 bg-card p-5 text-left shadow-[var(--shadow-card)] transition-all",
                   active
-                    ? "border-primary shadow-lg shadow-primary/10"
-                    : "border-border hover:border-primary/40"
+                    ? "border-primary shadow-[var(--shadow-card-hover)]"
+                    : "border-border hover:border-primary/40 hover:shadow-[var(--shadow-card-hover)]"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -205,10 +205,10 @@ export function SolverPanel() {
           type="button"
           onClick={() => setAlgorithm("heuristic")}
           className={cn(
-            "w-full rounded-3xl border-2 bg-card p-5 text-left transition-all",
+            "w-full rounded-3xl border-2 bg-card p-5 text-left shadow-[var(--shadow-card)] transition-all",
             algorithm === "heuristic"
-              ? "border-primary shadow-lg shadow-primary/10"
-              : "border-border hover:border-primary/40"
+              ? "border-primary shadow-[var(--shadow-card-hover)]"
+              : "border-border hover:border-primary/40 hover:shadow-[var(--shadow-card-hover)]"
           )}
         >
           <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export function SolverPanel() {
                         className={cn(
                           "rounded-full border px-3 py-1.5 text-sm transition-colors",
                           active
-                            ? "border-primary bg-primary/10 font-medium text-primary"
+                            ? "border-primary/60 bg-[var(--surface-tint)] font-medium text-primary shadow-[var(--shadow-sm)]"
                             : "border-border hover:border-primary/40"
                         )}
                       >
@@ -306,7 +306,7 @@ export function SolverPanel() {
                         className={cn(
                           "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
                           active
-                            ? "border-primary bg-primary/10 font-medium text-primary"
+                            ? "border-primary/60 bg-[var(--surface-tint)] font-medium text-primary shadow-[var(--shadow-sm)]"
                             : "border-border hover:border-primary/40"
                         )}
                       >

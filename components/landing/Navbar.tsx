@@ -19,10 +19,10 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/70 shadow-[0_1px_0_rgba(17,19,41,0.04)] backdrop-blur-xl backdrop-saturate-150">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-extrabold tracking-tight">
-          <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm shadow-primary/30">
+          <span className="flex size-9 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[color-mix(in_oklab,var(--primary),#7c3aed_35%)] text-primary-foreground shadow-sm shadow-primary/30">
             <Route className="size-5" />
           </span>
           <span className="text-lg">MetaPath</span>
@@ -34,7 +34,7 @@ export function Navbar() {
             <Link
               key={m.href}
               href={m.href}
-              className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--surface-tint)] hover:text-primary"
             >
               {m.label}
             </Link>

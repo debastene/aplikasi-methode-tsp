@@ -9,7 +9,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 
-const STOPS = ["#3a3ab5", "#3f3fbe", "#2e5fa8"]; // indigo, variasi sangat tipis
+const STOPS = ["#4040cc", "#5b45e0", "#355fb8"]; // indigo disegarkan, kilau tipis ke violet
 
 function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);

@@ -57,38 +57,48 @@
 
 :root {
   /* Palet "Deep Indigo" — elegan & minimal, warna dipakai hemat tapi tetap
-     membawa makna di visualisasi. */
-  --brand-indigo: #3a3ab5; /* primary / node kota */
+     membawa makna di visualisasi. Disegarkan: indigo sedikit lebih hidup,
+     permukaan berona sejuk, dan ada sistem bayangan lembut untuk kedalaman. */
+  --brand-indigo: #4040cc; /* primary / node kota (disegarkan dari #3a3ab5) */
   --brand-teal: #0b6e63; /* rute optimum */
   --brand-amber: #9c6300; /* SA / termometer suhu */
   --brand-rose: #a32347; /* sisi tabu / danger */
-  --brand-graphite: #9aa0b4; /* rute yang sedang dievaluasi */
-  --brand-ink: #0d1017; /* teks */
+  --brand-graphite: #99a0b6; /* rute yang sedang dievaluasi */
+  --brand-ink: #0e1016; /* teks */
 
-  --background: #fafafb;
-  --foreground: #0d1017;
+  --background: #f6f7fb; /* sedikit lebih sejuk; latar shader duduk di atasnya */
+  --foreground: #0e1016;
   --card: #ffffff;
-  --card-foreground: #0d1017;
+  --card-foreground: #0e1016;
   --popover: #ffffff;
-  --popover-foreground: #0d1017;
-  --primary: #3a3ab5;
+  --popover-foreground: #0e1016;
+  --primary: #4040cc;
   --primary-foreground: #ffffff;
+  --primary-hover: #4b4bd9;
   --secondary: #0b6e63;
   --secondary-foreground: #ffffff;
-  --muted: #f1f2f5;
-  --muted-foreground: #5d6472;
+  --muted: #eef0f7;
+  --muted-foreground: #596072;
   --accent: #9c6300;
   --accent-foreground: #ffffff;
   --destructive: #a32347;
-  --border: #e4e6eb;
-  --input: #e4e6eb;
-  --ring: #3a3ab5;
+  --border: #e3e7f1; /* berona sejuk agar selaras dengan indigo */
+  --input: #e3e7f1;
+  --ring: #4f46e5;
+  /* Permukaan berona indigo untuk state terpilih (pill/nav/hover). */
+  --surface-tint: #eef0fb;
+
+  /* Sistem bayangan lembut — memberi kedalaman tanpa terasa berat. */
+  --shadow-sm: 0 1px 2px rgba(17, 19, 41, 0.05);
+  --shadow-card: 0 1px 2px rgba(17, 19, 41, 0.04), 0 10px 30px -14px rgba(17, 19, 41, 0.14);
+  --shadow-card-hover: 0 2px 6px rgba(17, 19, 41, 0.06), 0 18px 44px -18px rgba(64, 64, 204, 0.22);
+
   /* Warna grafik konvergensi (Recharts) mengikuti brand */
-  --chart-1: #3a3ab5;
+  --chart-1: #4040cc;
   --chart-2: #0b6e63;
   --chart-3: #9c6300;
   --chart-4: #a32347;
-  --chart-5: #6d28d9;
+  --chart-5: #7c3aed;
   --radius: 1rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -176,8 +186,9 @@
 
 @layer components {
   .shiny-cta {
-    --shiny-cta-bg: var(--brand-ink);
-    --shiny-cta-bg-subtle: #1c2130;
+    /* Dasar indigo gelap (bukan hitam murni) agar CTA menyatu dengan palet. */
+    --shiny-cta-bg: #141334;
+    --shiny-cta-bg-subtle: #262556;
     --shiny-cta-fg: #ffffff;
     --shiny-cta-highlight: var(--brand-indigo);
     --shiny-cta-highlight-subtle: var(--brand-teal);
