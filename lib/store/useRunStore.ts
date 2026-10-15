@@ -7,9 +7,12 @@ import { create } from "zustand";
 import type { AlgoResult, Point } from "@/lib/tsp/types";
 import { runSimulatedAnnealing } from "@/lib/tsp/simulatedAnnealing";
 import { runTabuSearch } from "@/lib/tsp/tabuSearch";
+import { runHeuristic } from "@/lib/tsp/heuristic";
+import type { ConstructionKey } from "@/lib/tsp/construction";
+import type { ImprovementKey } from "@/lib/tsp/localSearch";
 import type { City } from "@/lib/types";
 
-export type AlgorithmKey = "sa" | "ts";
+export type AlgorithmKey = "sa" | "ts" | "heuristic";
 
 export type SAForm = {
   seed: number;
@@ -23,6 +26,14 @@ export type TSForm = {
   maxIter: number;
   tabuTenure: number;
   numNeighbors: number;
+};
+
+/** Form heuristik klasik: pilih 1 konstruksi + rangkaian perbaikan opsional. */
+export type HeuristicForm = {
+  construction: ConstructionKey;
+  improvements: ImprovementKey[]; // subset terurut dari ["2opt","3opt"]
+  startNode: number; // hanya dipakai NN
+  seed: number; // hanya dipakai AI
 };
 
 /** Nilai default = parameter asli dari kode tim (Fase 1). */
@@ -40,11 +51,19 @@ export const DEFAULT_TS: TSForm = {
   numNeighbors: 50,
 };
 
+export const DEFAULT_HEURISTIC: HeuristicForm = {
+  construction: "CI",
+  improvements: ["2opt", "3opt"],
+  startNode: 0,
+  seed: 42,
+};
+
 type RunState = {
   algorithm: AlgorithmKey;
   neighborhood: "swap" | "2opt";
   sa: SAForm;
   ts: TSForm;
+  heuristic: HeuristicForm;
 
   result: AlgoResult | null;
   /** Algoritma yang menghasilkan `result` (bisa beda dari pilihan saat ini). */
@@ -61,6 +80,7 @@ type RunState = {
   setNeighborhood: (n: "swap" | "2opt") => void;
   setSa: (patch: Partial<SAForm>) => void;
   setTs: (patch: Partial<TSForm>) => void;
+  setHeuristic: (patch: Partial<HeuristicForm>) => void;
 
   run: (cities: City[]) => void;
   clearResult: () => void;
@@ -80,6 +100,7 @@ export const useRunStore = create<RunState>((set, get) => ({
   neighborhood: "swap",
   sa: { ...DEFAULT_SA },
   ts: { ...DEFAULT_TS },
+  heuristic: { ...DEFAULT_HEURISTIC },
 
   result: null,
   resultAlgorithm: null,
@@ -94,16 +115,19 @@ export const useRunStore = create<RunState>((set, get) => ({
   setNeighborhood: (neighborhood) => set({ neighborhood }),
   setSa: (patch) => set((s) => ({ sa: { ...s.sa, ...patch } })),
   setTs: (patch) => set((s) => ({ ts: { ...s.ts, ...patch } })),
+  setHeuristic: (patch) => set((s) => ({ heuristic: { ...s.heuristic, ...patch } })),
 
   run: (cities) => {
-    const { algorithm, neighborhood, sa, ts } = get();
+    const { algorithm, neighborhood, sa, ts, heuristic } = get();
     set({ isRunning: true, error: null });
     try {
       const points: Point[] = cities.map((c) => ({ x: c.x, y: c.y }));
       const result =
         algorithm === "sa"
           ? runSimulatedAnnealing(points, { ...sa, neighborhood })
-          : runTabuSearch(points, { ...ts, neighborhood });
+          : algorithm === "ts"
+            ? runTabuSearch(points, { ...ts, neighborhood })
+            : runHeuristic(points, { ...heuristic });
 
       set({
         result,
