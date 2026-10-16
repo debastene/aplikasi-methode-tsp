@@ -51,7 +51,12 @@ export function DataInputPanel() {
     <section className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">1. Input Data Kota</h2>
+          <h2 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight">
+            <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-base text-primary-foreground shadow-sm shadow-primary/30">
+              1
+            </span>
+            Input Data Kota
+          </h2>
           <p className="text-sm text-muted-foreground">
             Unggah CSV/Excel, isi manual, atau muat contoh. Butuh kolom{" "}
             <code>x</code> &amp; <code>y</code>, minimal {MIN_CITIES} kota.
