@@ -300,32 +300,32 @@ void main() {
 const UNIFORMS = {
   colors: [
     [1.0, 1.0, 1.0], // #ffffff
-    [0.914, 0.922, 0.969], // #e9ebf7 — kabut sejuk kebiruan (lebih selaras indigo)
+    [0.878, 0.894, 0.961], // #e0e4f5 — kabut kebiruan lebih berisi (filamen lebih terbaca)
     [0.251, 0.251, 0.8], // #4040cc — filamen indigo (disegarkan)
-    [0.043, 0.431, 0.388], // #0b6e63 — hanya di inti paling terang
-    [0.043, 0.431, 0.388],
+    [0.282, 0.227, 0.78], // #483ac7 — inti filamen, indigo-violet lebih hidup
+    [0.043, 0.431, 0.388], // #0b6e63 — kilau teal di titik paling terang
     [0.043, 0.431, 0.388],
     [0.043, 0.431, 0.388],
     [0.043, 0.431, 0.388],
   ] as [number, number, number][],
-  colorCount: 4,
+  colorCount: 5,
   scale: 1.26,
-  intensity: 0.33,
-  paramA: 0.56,
+  intensity: 0.52,
+  paramA: 0.72,
   warp: 0.0,
   detail: 1.824,
-  contrast: 0.98,
-  brightness: 0.02,
-  saturation: 1.12,
+  contrast: 1.05,
+  brightness: 0.01,
+  saturation: 1.3,
   hue: 0.0,
-  vignette: 0.1,
+  vignette: 0.12,
   blur: 0.0,
   grain: 0.016,
   seed: 1372.0,
   rotate: 0.0,
   offsetX: -0.09,
   offsetY: 0.01,
-  drift: 0.08,
+  drift: 0.12,
   cursorEnabled: true,
   cursorEffect: 4.0,
   cursorStrength: 0.4,

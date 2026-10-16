@@ -15,16 +15,16 @@ export function SiteBackground() {
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-background"
     >
       <ShaderBackground className="h-full w-full" />
-      {/* Lapisan kedalaman: cahaya lembut di atas + halo indigo samar di balik
-          hero, lalu meredup ke warna halaman di bawah agar konten terasa tenang
-          dan kartu "mengambang". Membuat latar terasa premium, bukan abu rata. */}
+      {/* Lapisan kedalaman TIPIS: cukup memberi cahaya di atas & halo indigo,
+          tapi SENGAJA ringan agar animasi shader tetap terlihat jelas. Overlay
+          kuat sebelumnya membuat latar tampak abu rata — di sini diturunkan. */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 620px at 50% -12%, rgba(255,255,255,0.60), transparent 62%)," +
-            "radial-gradient(900px 520px at 50% 0%, rgba(64,64,204,0.07), transparent 66%)," +
-            "linear-gradient(to bottom, transparent 52%, var(--background) 100%)",
+            "radial-gradient(1100px 580px at 50% -14%, rgba(255,255,255,0.32), transparent 60%)," +
+            "radial-gradient(950px 560px at 50% 2%, rgba(64,64,204,0.10), transparent 68%)," +
+            "linear-gradient(to bottom, transparent 72%, color-mix(in oklab, var(--background) 72%, transparent) 100%)",
         }}
       />
     </div>
