@@ -12,7 +12,8 @@ export function Hero() {
     // memasang lapisannya sendiri.
     <section className="relative">
       <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-32">
-        <span className="mb-6 rounded-full border border-primary/25 bg-background/70 px-4 py-1.5 text-xs font-semibold text-primary backdrop-blur-sm sm:text-sm">
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-card/70 px-4 py-1.5 text-xs font-semibold text-primary shadow-[var(--shadow-sm)] backdrop-blur-md sm:text-sm">
+          <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
           Metode Optimasi Metaheuristik · Visualisasi TSP
         </span>
 

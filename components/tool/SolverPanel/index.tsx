@@ -155,7 +155,12 @@ export function SolverPanel() {
   return (
     <section className="space-y-5">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">2. Pilih Solver</h2>
+        <h2 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight">
+          <span className="flex size-8 items-center justify-center rounded-xl bg-primary text-base text-primary-foreground shadow-sm shadow-primary/30">
+            2
+          </span>
+          Pilih Solver
+        </h2>
         <p className="text-sm text-muted-foreground">
           Pilih algoritma, atur parameternya, lalu jalankan. Animasinya langsung diputar.
         </p>
