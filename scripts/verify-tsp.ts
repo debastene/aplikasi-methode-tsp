@@ -155,7 +155,7 @@ const isPermutation = (t: Tour, n: number) =>
   t.length === n && new Set(t).size === n && t.every((v) => v >= 0 && v < n);
 
 console.log("\n[H] Heuristik konstruksi — rute valid & jejak langkah");
-for (const k of ["NN", "NI", "CI", "FI", "AI"] as ConstructionKey[]) {
+for (const k of ["NN", "NI", "CI", "FI", "AI", "GI"] as ConstructionKey[]) {
   const r = runConstruction(k, hpts, { startNode: 0, rng: makeRng(42) });
   check(`${k}: rute permutasi lengkap`, isPermutation(r.tour, hpts.length));
   check(`${k}: jumlah langkah == jumlah kota`, r.steps.length === hpts.length);

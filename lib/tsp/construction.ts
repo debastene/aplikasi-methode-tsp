@@ -14,7 +14,7 @@ import { distance, tourCost } from "./distance";
 import type { RNG } from "./rng";
 import { shuffledRange } from "./rng";
 
-export type ConstructionKey = "NN" | "NI" | "CI" | "FI" | "AI";
+export type ConstructionKey = "NN" | "NI" | "CI" | "FI" | "AI" | "GI";
 
 /** Satu langkah konstruksi: keadaan rute setelah sebuah kota ditambahkan. */
 export interface BuildStep {
@@ -35,6 +35,7 @@ export const CONSTRUCTION_LABELS: Record<ConstructionKey, string> = {
   CI: "Cheapest Insertion",
   FI: "Farthest Insertion",
   AI: "Arbitrary Insertion",
+  GI: "General Insertion",
 };
 
 /** Biaya menyisipkan kota c di antara dua kota a-b (selisih panjang). */
@@ -274,6 +275,78 @@ function arbitraryInsertion(points: Point[], rng: RNG): BuildResult {
   return { tour, steps };
 }
 
+// ---------------------------------------------------------------------------
+// 6. General Insertion (GI) — port dari kode tim (algorithms/GI.py).
+//    Mulai dari kota 0 + kota terdekatnya, lalu ulangi: pilih pasangan
+//    (kota, posisi) yang MENAMBAH panjang tur paling sedikit — termasuk posisi
+//    di sisi penutup (antara kota terakhir dan kota pertama).
+//    Secara praktik ini keluarga cheapest-insertion dengan benih nearest.
+// ---------------------------------------------------------------------------
+function generalInsertion(points: Point[]): BuildResult {
+  const n = points.length;
+  // Kota <= 3: urutan apa pun setara (sesuai GI.py).
+  if (n <= 3) {
+    const tour: Tour = Array.from({ length: n }, (_, i) => i);
+    return {
+      tour,
+      steps: tour.map((c, i) => ({
+        tour: tour.slice(0, i + 1),
+        added: c,
+        note: i === 0 ? "Kota awal" : "Kota berikutnya",
+      })),
+    };
+  }
+
+  const tour: Tour = [0];
+  const unvisited = new Set<number>(Array.from({ length: n - 1 }, (_, i) => i + 1));
+  const steps: BuildStep[] = [{ tour: [0], added: 0, note: "Kota awal" }];
+
+  // Sub-tour awal: kota terdekat dari kota 0.
+  let nearest = -1;
+  let dNear = Infinity;
+  for (const c of unvisited) {
+    const d = distance(points[0], points[c]);
+    if (d < dNear) {
+      dNear = d;
+      nearest = c;
+    }
+  }
+  tour.push(nearest);
+  unvisited.delete(nearest);
+  steps.push({
+    tour: tour.slice(),
+    added: nearest,
+    note: `Kota terdekat dari kota awal (jarak ${dNear.toFixed(2)})`,
+  });
+
+  while (unvisited.size > 0) {
+    let bestIncrease = Infinity;
+    let bestCity = -1;
+    let bestPos = 0;
+    for (const city of unvisited) {
+      for (let i = 0; i < tour.length; i++) {
+        // i-1 merujuk ke kota terakhir saat i=0 (sisi penutup), sesuai GI.py.
+        const a = tour[(i - 1 + tour.length) % tour.length];
+        const b = tour[i];
+        const inc = insertionCost(a, b, city, points);
+        if (inc < bestIncrease) {
+          bestIncrease = inc;
+          bestCity = city;
+          bestPos = i;
+        }
+      }
+    }
+    tour.splice(bestPos, 0, bestCity);
+    unvisited.delete(bestCity);
+    steps.push({
+      tour: tour.slice(),
+      added: bestCity,
+      note: `Penyisipan termurah menyeluruh (+${bestIncrease.toFixed(2)})`,
+    });
+  }
+  return { tour, steps };
+}
+
 /**
  * Jalankan sebuah heuristik konstruksi sesuai kuncinya.
  * @param startNode hanya dipakai NN (kota awal).
@@ -298,6 +371,8 @@ export function runConstruction(
     case "AI":
       if (!opts.rng) throw new Error("Arbitrary Insertion butuh RNG berseed.");
       return arbitraryInsertion(points, opts.rng);
+    case "GI":
+      return generalInsertion(points);
   }
 }
 
