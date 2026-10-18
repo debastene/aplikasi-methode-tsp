@@ -61,6 +61,7 @@ const CONSTRUCTIONS: { key: ConstructionKey; name: string; tagline: string }[] =
   { key: "CI", name: "Cheapest Insertion", tagline: "sisip yang paling murah" },
   { key: "FI", name: "Farthest Insertion", tagline: "bentuk kerangka besar dulu" },
   { key: "AI", name: "Arbitrary Insertion", tagline: "urutan acak, sisip termurah" },
+  { key: "GI", name: "General Insertion", tagline: "sisip termurah menyeluruh, benih terdekat" },
 ];
 
 const IMPROVEMENTS: { key: ImprovementKey; name: string }[] = [
@@ -221,7 +222,7 @@ export function SolverPanel() {
             <span className="font-semibold">Konstruksi + perbaikan</span>
           </div>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Bangun rute (NN/NI/CI/FI/AI) lalu rapikan dengan 2-opt / 3-opt.
+            Bangun rute (NN/NI/CI/FI/AI/GI) lalu rapikan dengan 2-opt / 3-opt.
           </p>
         </button>
       </div>
