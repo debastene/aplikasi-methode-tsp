@@ -29,6 +29,14 @@ export function SampleData() {
       >
         <Sparkles className="size-4 text-accent" aria-hidden="true" /> Contoh 25 kota
       </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="gap-1.5"
+        onClick={() => loadSample("large")}
+      >
+        <Sparkles className="size-4 text-accent" aria-hidden="true" /> Contoh 100 kota
+      </Button>
       {count > 0 && (
         <Button
           size="sm"

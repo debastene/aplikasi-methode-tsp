@@ -11,7 +11,8 @@ import { runSimulatedAnnealing } from "../lib/tsp/simulatedAnnealing";
 import { runTabuSearch } from "../lib/tsp/tabuSearch";
 import { runConstruction, type ConstructionKey } from "../lib/tsp/construction";
 import { runHeuristic } from "../lib/tsp/heuristic";
-import { SAMPLE_25 } from "../lib/samples";
+import { SAMPLE_25, SAMPLE_100 } from "../lib/samples";
+import { runConfig, DEFAULT_CONFIG, type SolverConfig } from "../lib/solver/config";
 
 let passed = 0;
 let failed = 0;
@@ -188,6 +189,30 @@ console.log("\n[H] Reproducibility Arbitrary Insertion (seed sama)");
 const ha = runHeuristic(hpts, { construction: "AI", improvements: ["2opt"], seed: 7 });
 const hb = runHeuristic(hpts, { construction: "AI", improvements: ["2opt"], seed: 7 });
 check("AI seed sama -> rute akhir identik", JSON.stringify(ha.bestTour) === JSON.stringify(hb.bestTour));
+
+// ---------------------------------------------------------------------------
+// Sample 100 kota + dispatcher runConfig (dipakai mode satu-solver & banding).
+// ---------------------------------------------------------------------------
+console.log("\n[S] Sample 100 kota & runConfig");
+check("SAMPLE_100 berisi 100 kota", SAMPLE_100.length === 100, `dapat ${SAMPLE_100.length}`);
+check(
+  "SAMPLE_100 koordinat dalam 0..100",
+  SAMPLE_100.every((c) => c.x >= 0 && c.x <= 100 && c.y >= 0 && c.y <= 100)
+);
+const cfgPts: Point[] = SAMPLE_25.map((c) => ({ x: c.x, y: c.y }));
+const isPerm = (t: Tour, n: number) => t.length === n && new Set(t).size === n;
+for (const algo of ["sa", "ts", "heuristic"] as SolverConfig["algorithm"][]) {
+  const r = runConfig(cfgPts, { ...DEFAULT_CONFIG, algorithm: algo });
+  check(`runConfig(${algo}) -> rute valid`, isPerm(r.bestTour, cfgPts.length));
+}
+// Rangkaian perbaikan BOLEH DIULANG & berurutan: CI -> 2opt -> 3opt -> 2opt.
+const repeated = runConfig(cfgPts, {
+  ...DEFAULT_CONFIG,
+  algorithm: "heuristic",
+  heuristic: { construction: "CI", improvements: ["2opt", "3opt", "2opt"], startNode: 0, seed: 42 },
+});
+check("pipeline berulang (CI+2opt+3opt+2opt) valid", isPerm(repeated.bestTour, cfgPts.length));
+check("pipeline berulang punya label 2-opt", (repeated.label ?? "").includes("2-opt"));
 
 console.log(`\n== Ringkasan: ${passed} lulus, ${failed} gagal ==`);
 process.exit(failed > 0 ? 1 : 0);
