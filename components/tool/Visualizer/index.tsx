@@ -66,7 +66,7 @@ export function Visualizer() {
   const resultAlgorithm = useRunStore((s) => s.resultAlgorithm);
   const frameIndex = useRunStore((s) => s.frameIndex);
   const speed = useRunStore((s) => s.speed);
-  const initialTemperature = useRunStore((s) => s.sa.initialTemperature);
+  const initialTemperature = useRunStore((s) => s.config.sa.initialTemperature);
   const reduceMotion = useReducedMotion();
 
   const canAnimate = validateCityCount(cities.length).canAnimate;

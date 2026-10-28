@@ -1,73 +1,35 @@
 // ============================================================================
-// State global untuk menjalankan solver & memutar animasi (record-then-replay).
-// Algoritma dijalankan sekali -> menghasilkan frames -> UI tinggal memutar ulang.
+// State mode SATU solver: menjalankan solver & memutar animasi (record-then-replay).
+// Konfigurasi memakai SolverConfig bersama (lib/solver/config.ts).
 // ============================================================================
 
 import { create } from "zustand";
-import type { AlgoResult, Point } from "@/lib/tsp/types";
-import { runSimulatedAnnealing } from "@/lib/tsp/simulatedAnnealing";
-import { runTabuSearch } from "@/lib/tsp/tabuSearch";
-import { runHeuristic } from "@/lib/tsp/heuristic";
-import type { ConstructionKey } from "@/lib/tsp/construction";
-import type { ImprovementKey } from "@/lib/tsp/localSearch";
+import type { AlgoResult } from "@/lib/tsp/types";
 import type { City } from "@/lib/types";
+import { type SolverConfig, DEFAULT_CONFIG, runConfig } from "@/lib/solver/config";
 
-export type AlgorithmKey = "sa" | "ts" | "heuristic";
-
-export type SAForm = {
-  seed: number;
-  initialTemperature: number;
-  coolingRate: number;
-  maxIterations: number;
-};
-
-export type TSForm = {
-  seed: number;
-  maxIter: number;
-  tabuTenure: number;
-  numNeighbors: number;
-};
-
-/** Form heuristik klasik: pilih 1 konstruksi + rangkaian perbaikan opsional. */
-export type HeuristicForm = {
-  construction: ConstructionKey;
-  improvements: ImprovementKey[]; // subset terurut dari ["2opt","3opt"]
-  startNode: number; // hanya dipakai NN
-  seed: number; // hanya dipakai AI
-};
-
-/** Nilai default = parameter asli dari kode tim (Fase 1). */
-export const DEFAULT_SA: SAForm = {
-  seed: 42,
-  initialTemperature: 10000,
-  coolingRate: 0.99,
-  maxIterations: 15000,
-};
-
-export const DEFAULT_TS: TSForm = {
-  seed: 42,
-  maxIter: 1000,
-  tabuTenure: 15,
-  numNeighbors: 50,
-};
-
-export const DEFAULT_HEURISTIC: HeuristicForm = {
-  construction: "CI",
-  improvements: ["2opt", "3opt"],
-  startNode: 0,
-  seed: 42,
-};
+// Re-export agar impor lama tetap jalan.
+export type {
+  AlgorithmKey,
+  SAForm,
+  TSForm,
+  HeuristicForm,
+  SolverConfig,
+} from "@/lib/solver/config";
+export {
+  DEFAULT_SA,
+  DEFAULT_TS,
+  DEFAULT_HEURISTIC,
+  DEFAULT_CONFIG,
+  configLabel,
+} from "@/lib/solver/config";
 
 type RunState = {
-  algorithm: AlgorithmKey;
-  neighborhood: "swap" | "2opt";
-  sa: SAForm;
-  ts: TSForm;
-  heuristic: HeuristicForm;
+  config: SolverConfig;
 
   result: AlgoResult | null;
   /** Algoritma yang menghasilkan `result` (bisa beda dari pilihan saat ini). */
-  resultAlgorithm: AlgorithmKey | null;
+  resultAlgorithm: SolverConfig["algorithm"] | null;
   isRunning: boolean;
   error: string | null;
 
@@ -76,11 +38,7 @@ type RunState = {
   playing: boolean;
   speed: number; // frame per detik
 
-  setAlgorithm: (a: AlgorithmKey) => void;
-  setNeighborhood: (n: "swap" | "2opt") => void;
-  setSa: (patch: Partial<SAForm>) => void;
-  setTs: (patch: Partial<TSForm>) => void;
-  setHeuristic: (patch: Partial<HeuristicForm>) => void;
+  setConfig: (c: SolverConfig) => void;
 
   run: (cities: City[]) => void;
   clearResult: () => void;
@@ -96,11 +54,7 @@ type RunState = {
 };
 
 export const useRunStore = create<RunState>((set, get) => ({
-  algorithm: "sa",
-  neighborhood: "swap",
-  sa: { ...DEFAULT_SA },
-  ts: { ...DEFAULT_TS },
-  heuristic: { ...DEFAULT_HEURISTIC },
+  config: { ...DEFAULT_CONFIG },
 
   result: null,
   resultAlgorithm: null,
@@ -111,27 +65,17 @@ export const useRunStore = create<RunState>((set, get) => ({
   playing: false,
   speed: 8,
 
-  setAlgorithm: (algorithm) => set({ algorithm }),
-  setNeighborhood: (neighborhood) => set({ neighborhood }),
-  setSa: (patch) => set((s) => ({ sa: { ...s.sa, ...patch } })),
-  setTs: (patch) => set((s) => ({ ts: { ...s.ts, ...patch } })),
-  setHeuristic: (patch) => set((s) => ({ heuristic: { ...s.heuristic, ...patch } })),
+  setConfig: (config) => set({ config }),
 
   run: (cities) => {
-    const { algorithm, neighborhood, sa, ts, heuristic } = get();
+    const { config } = get();
     set({ isRunning: true, error: null });
     try {
-      const points: Point[] = cities.map((c) => ({ x: c.x, y: c.y }));
-      const result =
-        algorithm === "sa"
-          ? runSimulatedAnnealing(points, { ...sa, neighborhood })
-          : algorithm === "ts"
-            ? runTabuSearch(points, { ...ts, neighborhood })
-            : runHeuristic(points, { ...heuristic });
-
+      const points = cities.map((c) => ({ x: c.x, y: c.y }));
+      const result = runConfig(points, config);
       set({
         result,
-        resultAlgorithm: algorithm,
+        resultAlgorithm: config.algorithm,
         isRunning: false,
         frameIndex: 0,
         // Langsung putar animasinya — ini nilai jual utama aplikasi.
@@ -158,7 +102,6 @@ export const useRunStore = create<RunState>((set, get) => ({
   play: () => {
     const { result, frameIndex } = get();
     if (!result || result.frames.length < 2) return;
-    // Jika sudah di ujung, mulai lagi dari awal.
     if (frameIndex >= result.frames.length - 1) set({ frameIndex: 0 });
     set({ playing: true });
   },

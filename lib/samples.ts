@@ -4,6 +4,7 @@
 // ============================================================================
 
 import type { City } from "./types";
+import { makeRng } from "./tsp/rng";
 
 /** Beri label otomatis "Kota 1", "Kota 2", ... pada daftar koordinat. */
 const withAutoLabels = (points: { x: number; y: number }[]): City[] =>
@@ -54,9 +55,31 @@ export const SAMPLE_25: City[] = withAutoLabels([
   { x: 11.23, y: 77.58 },
 ]);
 
+/**
+ * (c) Dataset 100 kota — dibangkitkan acak dengan SEED TETAP (mulberry32),
+ * jadi selalu sama setiap kali dimuat (reproducible). Koordinat tersebar pada
+ * bidang 0..100. Untuk menguji algoritma pada skala lebih besar.
+ *
+ * Catatan performa: animasi tetap jalan (batas 200 kota), tetapi 3-opt pada
+ * 100 kota berat (O(n^3)/sapuan) — di aplikasi dibatasi anggaran waktu, jadi
+ * bisa berhenti sebelum konvergen penuh. NN/insertion/2-opt tetap ringan.
+ */
+export const SAMPLE_100: City[] = (() => {
+  const rng = makeRng(20260101);
+  const pts: { x: number; y: number }[] = [];
+  for (let i = 0; i < 100; i++) {
+    pts.push({
+      x: Math.round(rng.next() * 1000) / 10, // 0..100, 1 desimal
+      y: Math.round(rng.next() * 1000) / 10,
+    });
+  }
+  return withAutoLabels(pts);
+})();
+
 export const SAMPLES = {
   small: { name: "6 kota (demo cepat)", cities: SAMPLE_6 },
   medium: { name: "25 kota — Case I (lebih ramai)", cities: SAMPLE_25 },
+  large: { name: "100 kota (acak, skala besar)", cities: SAMPLE_100 },
 } as const;
 
 export type SampleKey = keyof typeof SAMPLES;
